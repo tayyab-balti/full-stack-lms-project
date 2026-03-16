@@ -1,0 +1,79 @@
+<app-header></app-header>
+<div class="subjects-container">
+
+  <!-- Header -->
+  <div class="subjects-header">
+    <h2 class="subjects-title">Select a Subject</h2>
+    <button class="add-btn" *ngIf="!showForm && !editingSubject"
+    (click)="showForm = true">
+    + Add Subject
+  </button>
+  </div>
+
+<!-- Add Subject Form -->
+<div class="subject-form" *ngIf="showForm">
+  <h3 class="form-title">New Subject</h3>
+
+  <label class="form-label">Title</label>
+  <input placeholder="Title *" [(ngModel)]="newSubject.title" />
+
+  <label class="form-label">Image</label>
+  <input type="file" class="file-input" (change)="onFileChange($event)" accept="image/*" />
+
+  <label class="form-label">Description</label>
+  <textarea placeholder="Description" [(ngModel)]="newSubject.description"></textarea>
+
+  <div class="form-actions">
+    <button class="save-btn" (click)="onAddSubject()">Save Subject</button>
+    <button class="cancel-btn" (click)="showForm = false">Cancel</button>
+  </div>
+</div>
+
+  <!-- Edit Subject Form -->
+<div class="subject-form" *ngIf="editingSubject">
+  <h3 class="form-title">Edit Subject</h3>
+
+  <label class="form-label">Title</label>
+  <input placeholder="Title *" [(ngModel)]="editingSubject.title" />
+
+  <label class="form-label">Image</label>
+  <input type="file" class="file-input" (change)="onFileChange($event)" accept="image/*" />
+
+  <label class="form-label">Description</label>
+  <textarea placeholder="Description" [(ngModel)]="editingSubject.description"></textarea>
+
+  <div class="form-actions">
+    <button class="save-btn" (click)="onUpdateSubject()">Update Subject</button>
+    <button class="cancel-btn" (click)="onCancelEdit()">Cancel</button>
+  </div>
+</div>
+
+  <!-- Subject Grid (hidden while editing) -->
+  <div class="subjects-grid" *ngIf="!showForm && !editingSubject">
+    <div class="subject-card" *ngFor="let subject of subjects" (click)="onSelectSubject(subject.id)">
+      <img [src]="'http://localhost:3500/' + subject.imageFile" [alt]="subject.title" class="subject-image" />
+      <div class="card-body">
+        <span class="subject-name">{{ subject.title }}</span>
+        <p class="subject-description">{{ subject.description }}</p>
+        <div class="card-actions">
+          <button class="edit-btn" (click)="onEditSubject($event, subject)">✏️ Edit</button>
+          <button class="delete-btn" (click)="onDeleteClick($event, subject)">🗑 Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Delete Confirmation Popup -->
+<div class="popup-overlay" *ngIf="showDeletePopup">
+  <div class="popup-box">
+    <div class="popup-icon">⚠️</div>
+    <h3>Delete Subject?</h3>
+    <p>You are about to delete <strong style="color: #eef0f7">{{ subjectToDelete?.title }}</strong>. This action cannot be undone.</p>
+    <div class="popup-actions">
+      <button class="popup-cancel" (click)="onCancelDelete()">Cancel</button>
+      <button class="popup-confirm" (click)="onConfirmDelete()">Yes, Delete</button>
+    </div>
+  </div>
+</div>
