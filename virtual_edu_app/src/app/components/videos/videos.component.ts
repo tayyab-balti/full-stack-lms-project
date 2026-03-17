@@ -112,10 +112,11 @@ export class VideosComponent implements OnInit {
           this.selectedVideoFile = null;
           this.showForm = false;
           this.isUploading = false;
+          this.toastr.success("Video added successfully")
         },
         error: (err) => {
           console.error('Error saving video:', err);
-          
+          this.toastr.error('Failed to save video');
           this.isUploading = false;
         },
       });
@@ -135,13 +136,16 @@ export class VideosComponent implements OnInit {
   }
 
   async onUpdateVideo(): Promise<void> {
-    if (!this.editingVideo || !this.editingVideo.title) return;
+    if (!this.editingVideo || !this.editingVideo.title) {
+      this.toastr.warning('Please fill all fields')
+      return
+    }
 
     const maxSizeMB = 50;
     const maxSizeBytes = maxSizeMB * 1024 * 1024;
 
     if (this.editVideoFile && this.editVideoFile.size > maxSizeBytes) {
-      alert(`Video is too large. Maximum allowed size is ${maxSizeMB}MB.`);
+      this.toastr.warning(`Video is too large. Maximum allowed size is ${maxSizeMB}MB.`);
       return;
     }
 
@@ -167,6 +171,7 @@ export class VideosComponent implements OnInit {
         error: (err) => {
           console.error('Error updating video:', err);
           this.isUploading = false;
+          this.toastr.error('Error updating video')
         },
       });
     } catch (err) {
@@ -198,8 +203,13 @@ export class VideosComponent implements OnInit {
         );
         this.showDeletePopup = false;
         this.videoToDelete = null;
+        this.toastr.success('Video deleted successfully');
+
       },
-      error: (err) => console.error('Error deleting video:', err),
+      error: (err) => {
+        this.toastr.error('Failed to delete video')
+        console.error('Error deleting video:', err)
+      }
     });
   }
 

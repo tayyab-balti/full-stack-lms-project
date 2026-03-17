@@ -27,7 +27,10 @@ export class SubjectsComponent {
   // Delete popup
   showDeletePopup = false;
   subjectToDelete: Subject | null = null;
-
+  
+    // for edit / delete icons
+    openMenuId: number | null = null;
+  
   constructor(
     private router: Router,
     private subjectService: SubjectVideosService,
@@ -72,6 +75,11 @@ export class SubjectsComponent {
     }
   }
 
+toggleMenu(event: Event, subjectId: number) {
+  event.stopPropagation(); // Prevent card click
+  this.openMenuId = this.openMenuId === subjectId ? null : subjectId;
+}
+
   // validations
   private isSubjectValid(subject: Partial<Subject>): boolean {
     // Checks title, description, and selected file
@@ -91,8 +99,7 @@ export class SubjectsComponent {
 
   // ── ADD ──
   onAddSubject(): void {
-    if (
-      !this.isSubjectValid(this.newSubject)) return;
+    if (!this.isSubjectValid(this.newSubject)) return;
 
     const formData = new FormData(); // browser API used when sending file + text together
     formData.append('title', this.newSubject.title!);
@@ -104,6 +111,7 @@ export class SubjectsComponent {
     this.subjectService.createSubject(formData).subscribe({
       next: (created: Subject) => {
         this.subjects.push(created);
+        this.toastr.success('Subject added successfully');
         this.newSubject = { title: '', imageFile: '', description: '' }; // reset form
         this.selectedFile = null;
         this.showForm = false;
@@ -114,12 +122,14 @@ export class SubjectsComponent {
 
   onEditSubject(event: Event, subject: Subject): void {
     event.stopPropagation();
+    this.openMenuId = null;
     this.editingSubject = { ...subject }; // copy so original isn't mutated
     this.showForm = false;
   }
 
   onUpdateSubject(): void {
-    if (!this.editingSubject || !this.isSubjectValid(this.editingSubject)) return;
+    if (!this.editingSubject || !this.isSubjectValid(this.editingSubject))
+      return;
 
     const formData = new FormData();
     formData.append('title', this.editingSubject.title);
@@ -136,8 +146,12 @@ export class SubjectsComponent {
           this.subjects[index] = updated; // replace old with updated in array
           this.editingSubject = null; // close edit form
           this.selectedFile = null;
+          this.toastr.success('Subject updated successfully');
         },
-        error: (err) => console.error('Error updating subject:', err),
+        error: (err) => {
+          (console.error('Error updating subject:', err),
+            this.toastr.error('Error updating subject'));
+        },
       });
   }
 
@@ -153,6 +167,7 @@ export class SubjectsComponent {
   // ── DELETE ──
   onDeleteClick(event: Event, subject: Subject): void {
     event.stopPropagation(); // prevents triggering onSelectSubject
+    this.openMenuId = null;
     this.subjectToDelete = subject;
     this.showDeletePopup = true;
   }
@@ -167,8 +182,12 @@ export class SubjectsComponent {
         );
         this.showDeletePopup = false;
         this.subjectToDelete = null;
+        this.toastr.success('Subject deleted successfully');
       },
-      error: (err) => console.error('Error deleting subject:', err),
+      error: (err) => {
+        console.error('Error deleting subject:', err);
+        this.toastr.error('Error deleting subject');
+      },
     });
   }
 

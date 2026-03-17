@@ -256,7 +256,6 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 16px;
-  overflow: hidden;
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -264,6 +263,7 @@
     transform 0.25s ease,
     box-shadow 0.25s ease,
     border-color 0.25s ease;
+    position: relative;
 }
 
 .subject-card:hover {
@@ -277,6 +277,8 @@
   height: 200px;
   object-fit: cover;
   display: block;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
 }
 
 .subject-card:hover .subject-image {
@@ -306,41 +308,98 @@
   flex: 1;
 }
 
-/* ── Card Action Buttons ── */
-.card-actions {
-  display: flex;
-  gap: 10px;
+/* ── Menu Buttons ── */
+
+.menu-container {
+  position: absolute; 
+  top: 15px;
+  right: 15px;
+  z-index: 20;
 }
 
-.edit-btn,
-.delete-btn {
-  flex: 1;
-  padding: 9px 0;
+.menu-btn {
+  background: rgba(0, 0, 0, 0.5); 
   border: none;
-  border-radius: 8px;
+  cursor: pointer;
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.menu-btn:hover {
+  background: var(--accent);
+}
+
+/* Container for the popup */
+.menu-options {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  background: #1e2230; /* var(--surface-2) */
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  z-index: 100;
+  min-width: 140px;
+}
+
+/* Base style for both buttons */
+.menu-options button {
+  all: unset;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
   font-family: "DM Sans", sans-serif;
-  font-size: 0.82rem;
+  font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
+  border-radius: 8px;
   transition: all 0.2s ease;
 }
 
-.edit-btn {
-  background: var(--accent-soft);
-  color: var(--accent);
-  border: 1px solid rgba(108, 99, 255, 0.2);
+/* Specific Style for Edit */
+.menu-options .edit-btn {
+  color: #43d9a2; /* Success Green */
+  background: rgba(67, 217, 162, 0.1); /* Subtle green tint */
 }
 
-.edit-btn:hover {
-  background: var(--accent);
+.menu-options .edit-btn:hover {
+  background: #43d9a2;
+  color: #000; /* Dark text on bright background for readability */
+}
+
+/* Specific Style for Delete */
+.menu-options .delete-btn {
+  color: #ff4d6d; /* Danger Red */
+  background: rgba(255, 77, 109, 0.1); /* Subtle red tint */
+}
+
+.menu-options .delete-btn:hover {
+  background: #ff4d6d;
   color: #fff;
-  transform: translateY(-1px);
 }
 
-.delete-btn {
-  background: var(--danger-soft);
-  color: var(--danger);
-  border: 1px solid rgba(255, 77, 109, 0.2);
+/* Icon adjustments */
+.menu-options svg {
+  flex-shrink: 0;
+}
+
+.edit-btn:hover svg {
+  stroke: #4caf50; /* green */
+}
+
+.delete-btn:hover svg {
+  stroke: #f44336; /* red */
 }
 
 .delete-btn:hover {
