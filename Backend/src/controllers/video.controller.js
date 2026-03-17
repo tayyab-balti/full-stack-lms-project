@@ -9,12 +9,14 @@ const getVideos = async (req, res) => {
       return res.status(400).json({ message: "subjectId is required" });
     }
 
-    const where = subjectId ? { subjectId: Number(subjectId) } : {};
-    const videos = await Video.findAll({ where: { subjectId } });
-    res.status(200).json(videos);
+    const id = subjectId ? { subjectId: Number(subjectId) } : {};
+    const videos = await Video.findAll({ where: id });
+    // console.log(id);
+
+    return res.status(200).json(videos);
   } catch (error) {
     console.error("Error fetching videos:", error);
-    res.status(500).json({ message: "Failed to fetch videos." });
+    return res.status(500).json({ message: "Failed to fetch videos." });
   }
 };
 
@@ -29,9 +31,9 @@ const createVideo = async (req, res) => {
     }
 
     const video = await Video.create({ title, url, subjectId });
-    res.status(201).json(video);
+    return res.status(201).json(video);
   } catch (error) {
-    res.status(500).json({ message: "Failed to create video", error });
+    return res.status(500).json({ message: "Failed to create video", error });
   }
 };
 
@@ -46,9 +48,9 @@ const updateVideo = async (req, res) => {
     }
 
     await video.update({ title, url });
-    res.status(200).json(video);
+    return res.status(200).json(video);
   } catch (error) {
-    res.status(500).json({ message: "Failed to update video", error });
+    return res.status(500).json({ message: "Failed to update video", error });
   }
 };
 
@@ -62,9 +64,9 @@ const deleteVideo = async (req, res) => {
     }
 
     await video.destroy();
-    res.status(200).json({ message: "Video deleted successfully" });
+    return res.status(200).json({ message: "Video deleted successfully" });
   } catch (error) {
-    res.status(500).json({ message: "Failed to delete video", error });
+    return res.status(500).json({ message: "Failed to delete video", error });
   }
 };
 

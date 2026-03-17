@@ -18,7 +18,7 @@ app.use("/api/auth", router);
 app.use("/api/subjects", subjectRouter);
 app.use("/api/videos", videoRouter);
 
-app.use("/public/uploads", express.static("public/uploads")); // newly uploaded images
+app.use("/public/uploads", express.static("public/uploads")); // virtual & physical path
 
 app.listen(PORT, () => {
   console.log(`Server running on localhost:${PORT}`);

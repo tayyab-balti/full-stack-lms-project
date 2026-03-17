@@ -30,6 +30,6 @@ export class SupabaseService {
       .from(this.bucket)
       .getPublicUrl(fileName);
 
-    return data.publicUrl;
+    return data.publicUrl;  // return url
   }
 }

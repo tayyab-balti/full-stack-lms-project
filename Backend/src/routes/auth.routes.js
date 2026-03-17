@@ -1,5 +1,5 @@
 const express = require("express");
-const router = express.Router();
+const router = express.Router(); // routing middleware
 const { createUser, loginUser } = require("../controllers/user.controller");
 
 router.post("/signup", createUser);

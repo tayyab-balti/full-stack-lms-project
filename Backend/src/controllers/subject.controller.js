@@ -4,10 +4,10 @@ const Video = require("../models/Video");
 const getAllSubjects = async (req, res) => {
   try {
     const subjects = await Subject.findAll();
-    res.status(200).json(subjects);
+    return res.status(200).json(subjects);
   } catch (error) {
     console.error("Error fetching subjects:", error);
-    res.status(500).json({ message: "Failed to fetch subjects." });
+    return res.status(500).json({ message: "Failed to fetch subjects." });
   }
 };
 
@@ -20,12 +20,12 @@ const createSubject = async (req, res) => {
     }
 
     // multer puts the saved file info on req.file
-    const imageFile = req.file ? `public/uploads//${req.file.filename}` : null;
+    const imageFile = req.file ? `public/uploads/${req.file.filename}` : null;
 
     const subject = await Subject.create({ title, imageFile, description });
-    res.status(201).json(subject);
+    return res.status(201).json(subject);
   } catch (error) {
-    res.status(500).json({ message: "Failed to create subject", error });
+    return res.status(500).json({ message: "Failed to create subject", error });
   }
 };
 
@@ -40,7 +40,9 @@ const updateSubject = async (req, res) => {
     }
 
     // only update url if a new file was uploaded
-    const imageFile = req.file ? `public/uploads//${req.file.filename}` : subject.imageFile;
+    const imageFile = req.file
+      ? `public/uploads/${req.file.filename}`
+      : subject.imageFile;
 
     subject.update({ title, imageFile, description });
     res.status(200).json(subject);

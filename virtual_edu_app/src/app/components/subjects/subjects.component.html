@@ -10,26 +10,28 @@
   </button>
   </div>
 
-<!-- Add Subject Form -->
-<div class="subject-form" *ngIf="showForm">
-  <h3 class="form-title">New Subject</h3>
+<!-- Add or Edit Subject Form -->
+<div class="subject-form" *ngIf="showForm || editingSubject">
+  <h3 class="form-title">{{ editingSubject ? 'Edit Subject' : 'New Subject' }}</h3>
 
   <label class="form-label">Title</label>
-  <input placeholder="Title *" [(ngModel)]="newSubject.title" />
+  <input placeholder="Title" [(ngModel)]="currentSubject.title" />
 
   <label class="form-label">Image</label>
   <input type="file" class="file-input" (change)="onFileChange($event)" accept="image/*" />
 
   <label class="form-label">Description</label>
-  <textarea placeholder="Description" [(ngModel)]="newSubject.description"></textarea>
+  <textarea placeholder="Description" [(ngModel)]="currentSubject.description"></textarea>
 
   <div class="form-actions">
-    <button class="save-btn" (click)="onAddSubject()">Save Subject</button>
-    <button class="cancel-btn" (click)="showForm = false">Cancel</button>
+    <button class="save-btn" (click)="editingSubject ? onUpdateSubject() : onAddSubject()">
+      {{ editingSubject ? 'Update Subject' : 'Save Subject' }}
+    </button>
+    <button class="cancel-btn" (click)="onCancel()">Cancel</button>
   </div>
 </div>
 
-  <!-- Edit Subject Form -->
+  <!-- Edit Subject Form
 <div class="subject-form" *ngIf="editingSubject">
   <h3 class="form-title">Edit Subject</h3>
 
@@ -46,7 +48,7 @@
     <button class="save-btn" (click)="onUpdateSubject()">Update Subject</button>
     <button class="cancel-btn" (click)="onCancelEdit()">Cancel</button>
   </div>
-</div>
+</div> -->
 
   <!-- Subject Grid (hidden while editing) -->
   <div class="subjects-grid" *ngIf="!showForm && !editingSubject">
