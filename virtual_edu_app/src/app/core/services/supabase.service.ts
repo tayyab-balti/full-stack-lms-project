@@ -20,7 +20,7 @@ export class SupabaseService {
       .from(this.bucket)
       .upload(fileName, file, {
         cacheControl: '3600',
-        upsert: false
+        upsert: false   //  prevents overwriting a file
       });
 
     if (error) throw error;
@@ -30,6 +30,6 @@ export class SupabaseService {
       .from(this.bucket)
       .getPublicUrl(fileName);
 
-    return data.publicUrl;  // return url
+    return data.publicUrl;
   }
 }

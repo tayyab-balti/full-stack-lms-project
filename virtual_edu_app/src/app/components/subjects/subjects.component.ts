@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { Subject } from '../../core/models/subject.interface';
 import { SubjectVideosService } from '../../core/services/subject-videos.service';
 import { HeaderComponent } from '../header/header.component';
-import { ToastrService } from 'ngx-toastr';
+import { Toast, ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-subjects',
@@ -27,10 +27,7 @@ export class SubjectsComponent {
   // Delete popup
   showDeletePopup = false;
   subjectToDelete: Subject | null = null;
-  
-    // for edit / delete icons
-    openMenuId: number | null = null;
-  
+
   constructor(
     private router: Router,
     private subjectService: SubjectVideosService,
@@ -62,74 +59,53 @@ export class SubjectsComponent {
 
   onFileChange(event: Event): void {
     const input = event.target as HTMLInputElement;
-    const file = input.files?.[0]; // safely get first file
-    if (!file) return; // exit if no file selected
-
-    this.selectedFile = file;
-
-    // safely update imageFile only if current subject exists
-    if (this.editingSubject) {
-      this.editingSubject.imageFile = file.name;
-    } else if (this.newSubject) {
-      this.newSubject.imageFile = file.name;
+    if (input.files && input.files.length > 0) {
+      this.selectedFile = input.files[0];
     }
-  }
-
-toggleMenu(event: Event, subjectId: number) {
-  event.stopPropagation(); // Prevent card click
-  this.openMenuId = this.openMenuId === subjectId ? null : subjectId;
-}
-
-  // validations
-  private isSubjectValid(subject: Partial<Subject>): boolean {
-    // Checks title, description, and selected file
-    if (!subject.title || !subject.description) {
-      this.toastr.warning('Please fill all fields');
-      return false;
-    }
-
-    // For Add, ensure image is selected; for Edit, allow existing image
-    if (!this.selectedFile && !this.editingSubject) {
-      this.toastr.warning('Please select an image');
-      return false;
-    }
-
-    return true;
   }
 
   // ── ADD ──
-  onAddSubject(): void {
-    if (!this.isSubjectValid(this.newSubject)) return;
+  onAddSubject(): any {
+    if (
+      !this.newSubject.title ||
+      !this.selectedFile ||
+      !this.newSubject.description
+    ) {
+      return this.toastr.warning('Please select all fields');
+    }
 
     const formData = new FormData(); // browser API used when sending file + text together
-    formData.append('title', this.newSubject.title!);
-    formData.append('description', this.newSubject.description ?? '');
+    formData.append('title', this.newSubject.title);
+    formData.append('description', this.newSubject.description ?? ''); // if null or undefined, it defaults to empty string
     if (this.selectedFile) {
       formData.append('image', this.selectedFile); // 'image' matches upload.single('image')
     }
 
-    this.subjectService.createSubject(formData).subscribe({
+    const queryDataTitle = this.newSubject.title;
+    const id = 111;
+
+    this.subjectService.createSubject(formData, queryDataTitle, id).subscribe({
       next: (created: Subject) => {
         this.subjects.push(created);
-        this.toastr.success('Subject added successfully');
         this.newSubject = { title: '', imageFile: '', description: '' }; // reset form
         this.selectedFile = null;
         this.showForm = false;
       },
-      error: (err) => console.error('Error creating subject:', err),
+      error: (err) => {console.error('Error creating subject:', err)
+        this.toastr.error(err?.message)
+      },
     });
   }
 
   onEditSubject(event: Event, subject: Subject): void {
     event.stopPropagation();
-    this.openMenuId = null;
+
     this.editingSubject = { ...subject }; // copy so original isn't mutated
     this.showForm = false;
   }
 
-  onUpdateSubject(): void {
-    if (!this.editingSubject || !this.isSubjectValid(this.editingSubject))
-      return;
+  onUpdateSubject(): any {
+    if (!this.editingSubject || !this.editingSubject.title) return;
 
     const formData = new FormData();
     formData.append('title', this.editingSubject.title);
@@ -146,28 +122,18 @@ toggleMenu(event: Event, subjectId: number) {
           this.subjects[index] = updated; // replace old with updated in array
           this.editingSubject = null; // close edit form
           this.selectedFile = null;
-          this.toastr.success('Subject updated successfully');
         },
-        error: (err) => {
-          (console.error('Error updating subject:', err),
-            this.toastr.error('Error updating subject'));
-        },
+        error: (err) => console.error('Error updating subject:', err),
       });
   }
 
-  get currentSubject(): Partial<Subject> {
-    return this.editingSubject || this.newSubject;
-  }
-
-  onCancel(): void {
-    this.showForm = false;
+  onCancelEdit(): void {
     this.editingSubject = null;
   }
 
   // ── DELETE ──
   onDeleteClick(event: Event, subject: Subject): void {
     event.stopPropagation(); // prevents triggering onSelectSubject
-    this.openMenuId = null;
     this.subjectToDelete = subject;
     this.showDeletePopup = true;
   }
@@ -178,16 +144,12 @@ toggleMenu(event: Event, subjectId: number) {
     this.subjectService.deleteSubject(this.subjectToDelete.id).subscribe({
       next: () => {
         this.subjects = this.subjects.filter(
-          (s) => s.id !== this.subjectToDelete!.id,
+          (s) => s.id !== this.subjectToDelete!.id, // avoids runtime errors if subjectToDelete is unexpectedly null
         );
         this.showDeletePopup = false;
         this.subjectToDelete = null;
-        this.toastr.success('Subject deleted successfully');
       },
-      error: (err) => {
-        console.error('Error deleting subject:', err);
-        this.toastr.error('Error deleting subject');
-      },
+      error: (err) => console.error('Error deleting subject:', err),
     });
   }
 

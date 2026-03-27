@@ -16,7 +16,7 @@
         required
         #fullNameRef="ngModel"
       />
-      <span class="error-message" *ngIf="fullNameRef.invalid && fullNameRef.touched">
+      <span class="error-message" *ngIf="fullNameRef.invalid && fullNameRef.touched && fullName.length > 1">
         Full name is required.
       </span>
     </div>

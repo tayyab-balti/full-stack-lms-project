@@ -6,7 +6,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { SubjectVideosService } from '../../core/services/subject-videos.service';
 import { HeaderComponent } from '../header/header.component';
 import { SupabaseService } from '../../core/services/supabase.service';
-import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-videos',
@@ -39,7 +38,6 @@ export class VideosComponent implements OnInit {
     private videoService: SubjectVideosService,
     private supabaseService: SupabaseService,
     private router: Router,
-    private toastr: ToastrService,
   ) {}
 
   ngOnInit(): void {
@@ -75,30 +73,17 @@ export class VideosComponent implements OnInit {
 
   // ── ADD ──
   async onAddVideo(): Promise<void> {
-    if (!this.newVideo.title || !this.selectedVideoFile) {
-      this.toastr.warning('Please fill all fields');
-      return
-    };
-
-    const maxSizeMB = 50;
-    const maxSizeBytes = maxSizeMB * 1024 * 1024;
-
-    if (this.selectedVideoFile.size > maxSizeBytes) {
-      this.toastr.warning(
-        `Video is too large. Maximum allowed size is ${maxSizeMB}MB.`,
-      );
-      return;
-    }
+    if (!this.newVideo.title || !this.selectedVideoFile) return;
 
     try {
       this.isUploading = true;
 
-      // upload to Supabase, get back public URL
+      // 1. upload to Supabase, get back public URL
       const videoUrl = await this.supabaseService.uploadVideo(
         this.selectedVideoFile,
       );
 
-      // send title + URL + subjectId to Node backend
+      // 2. send title + URL + subjectId to Node backend
       const payload = {
         title: this.newVideo.title,
         url: videoUrl,
@@ -112,17 +97,14 @@ export class VideosComponent implements OnInit {
           this.selectedVideoFile = null;
           this.showForm = false;
           this.isUploading = false;
-          this.toastr.success("Video added successfully")
         },
         error: (err) => {
           console.error('Error saving video:', err);
-          this.toastr.error('Failed to save video');
           this.isUploading = false;
         },
       });
     } catch (err) {
       console.error('Error uploading to Supabase:', err);
-      this.toastr.error('Upload failed. Please try a smaller video file.');
       this.isUploading = false;
     }
   }
@@ -136,18 +118,7 @@ export class VideosComponent implements OnInit {
   }
 
   async onUpdateVideo(): Promise<void> {
-    if (!this.editingVideo || !this.editingVideo.title) {
-      this.toastr.warning('Please fill all fields')
-      return
-    }
-
-    const maxSizeMB = 50;
-    const maxSizeBytes = maxSizeMB * 1024 * 1024;
-
-    if (this.editVideoFile && this.editVideoFile.size > maxSizeBytes) {
-      this.toastr.warning(`Video is too large. Maximum allowed size is ${maxSizeMB}MB.`);
-      return;
-    }
+    if (!this.editingVideo || !this.editingVideo.title) return;
 
     try {
       this.isUploading = true;
@@ -171,12 +142,10 @@ export class VideosComponent implements OnInit {
         error: (err) => {
           console.error('Error updating video:', err);
           this.isUploading = false;
-          this.toastr.error('Error updating video')
         },
       });
     } catch (err) {
       console.error('Error uploading to Supabase:', err);
-      this.toastr.error('Upload failed. Please try a smaller video file.');
       this.isUploading = false;
     }
   }
@@ -203,13 +172,8 @@ export class VideosComponent implements OnInit {
         );
         this.showDeletePopup = false;
         this.videoToDelete = null;
-        this.toastr.success('Video deleted successfully');
-
       },
-      error: (err) => {
-        this.toastr.error('Failed to delete video')
-        console.error('Error deleting video:', err)
-      }
+      error: (err) => console.error('Error deleting video:', err),
     });
   }
 

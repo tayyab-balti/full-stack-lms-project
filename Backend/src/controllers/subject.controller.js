@@ -13,17 +13,31 @@ const getAllSubjects = async (req, res) => {
 
 const createSubject = async (req, res) => {
   try {
-    const { title, description } = req.body;
+    const { description } = req.body;
+
+    const { title } = req.query;
+    console.log(title);
 
     if (!title) {
       return res.status(400).json({ message: "Title is required" });
     }
 
+    const prevTitle = await Subject.findOne({ where: { title } });
+    console.log("1", prevTitle);
+
+    if (prevTitle) {
+      console.log(title, "error---", prevTitle);
+      return res.status(400).json({ message: "Title already existed!" });
+    }
+
+    console.log("2");
+
     // multer puts the saved file info on req.file
     const imageFile = req.file ? `public/uploads/${req.file.filename}` : null;
-
+    console.log("3");
     const subject = await Subject.create({ title, imageFile, description });
     return res.status(201).json(subject);
+    console.log("4");
   } catch (error) {
     return res.status(500).json({ message: "Failed to create subject", error });
   }

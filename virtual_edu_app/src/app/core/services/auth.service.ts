@@ -56,8 +56,15 @@ export class AuthService {
     );
   }
 
+  // login(email: string, password: string): Observable<AuthResponse> {
+  //   return this.http.post<AuthResponse>(`${this.apiUrl}/login`, {
+  //     email,
+  //     password,
+  //   });
+  // }
+
   isLoggedIn(): boolean {
-    return !!localStorage.getItem('token');  // !! converts to boolean
+    return !!localStorage.getItem('token');  // !! converts to boolean from str
   }
 
   logout(): void {
